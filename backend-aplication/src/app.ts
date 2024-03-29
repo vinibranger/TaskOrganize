@@ -15,10 +15,20 @@ class App {
   private initMongoose(): void {
     mongoose.set("runValidators", true); //aqui é true para que as validação do schema funcione certo
   }
-  
-  private connectDataBase(): void {
-    mongoose.connect("mongodb+srv://vinibranger:1fddMGUbq71sk9fb@cluster0.3te1hrw.mongodb.net/projetoCrud?retryWrites=true&w=majority&appName=Cluster0");
-  }
+
+  // private connectDataBase(): void {
+  //   mongoose.connect("mongodb+srv://vinibranger:1fddMGUbq71sk9fb@cluster0.3te1hrw.mongodb.net/projetoCrud?retryWrites=true&w=majority&appName=Cluster0");
+  //*  }
+  private connectDataBase = async () => {
+    try {
+      await mongoose.connect(
+        "mongodb+srv://vinibranger:1fddMGUbq71sk9fb@cluster0.3te1hrw.mongodb.net/projetoCrud?retryWrites=true&w=majority&appName=Cluster0"
+      );
+      console.log("connected to mongodb");
+    } catch (error) {
+      console.log("error while connecting mongodb", error.message);
+    }
+  };
 
   public listen(port: number): void {
     this.app.listen(port, () => {
@@ -29,8 +39,3 @@ class App {
 
 export default App;
 
-
-///YGy5ZOKphG72ljFs
-
-
-//mongodb+srv://vinibranger:YGy5ZOKphG72ljFs@cluster0.3te1hrw.mongodb.net/
