@@ -6,13 +6,14 @@ import Controller from "./Controllers/Controller";
 class App {
   public app: express.Application;
 
-  public constructor() {
+  public constructor(controllers: Controller[]) {
     this.app = express();
     this.app.use(cors());
-
+   
     this.initMongoose();
     this.connectDataBase();
     this.initExpressJson();
+    this.initControllers(controllers);
   }
 
   private initMongoose(): void {
@@ -32,8 +33,8 @@ class App {
   private initExpressJson(): void {
     this.app.use(express.json()); //Aqui eu defino que quero utilizar o padrao json para leitura e resposta
   }
-  private initControllers(constrollers: Controller[]): void {
-    constrollers.forEach((Controller) => {
+  private initControllers(controllers: Controller[]): void {
+    controllers.forEach((controller) => {
       this.app.use("/", controller.router);
     });
   }
