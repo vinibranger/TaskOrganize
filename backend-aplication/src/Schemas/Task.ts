@@ -1,41 +1,48 @@
-import {Schema, model, Document} from "mongoose"
+import { Schema, model, Document, SchemaType } from "mongoose";
 import { UserInterface } from "./User";
- 
-export enum StatusEnum{
-    OPEN = 'OPEN',
-    FINISHED ='FINISHED'
+
+export enum StatusEnum {
+  OPEN = "OPEN",
+  FINISHED = "FINISHED",
 }
 
-export interface TaskInterface extends Document{
-   description: string,
-   status: StatusEnum,
-   concluded: Date,
-   responsible: UserInterface,
-   creation: Date,
+export interface TaskInterface extends Document {
+  description: string;
+  status: StatusEnum;
+  concluded: Date;
+  responsible: UserInterface;
+  creation: Date;
 }
 
 const TaskSchema = new Schema({
-   name:{
-       type : String,
-       unique: true,
-       required: [true,'Nome Obrigatório'],
-   },
-   emai:{
-       type: String,
-       required: [true ,'E-mail Obrigatório'],
-       unique: true,
-       lowercase: true,
-   },
-   password:{
-       type: String,
-       required: [true ,'Senha Obrigatória'],
-       select: false, //colocar assim para não trazer no momento da consulta no banco
-   },
-   creation:{
-       type: Date,
-       default: Date.now, //coloquei isso pois no bache já vai pegar a data do cadastro
-
-   }
+  description: {
+    type: String,
+    required: [true, "Descrição Obrigatória"],
+  },
+  status: {
+    type: String,
+    validate: {
+      validator: (value) => {
+        if (value === StatusEnum.OPEN || StatusEnum.FINISHED) return true;
+        return false;
+      },
+      message: (props) => `${props.value} não é um valor valido`,
+    },
+    required: [true, "Status Requerido"],
+    uppercase: true,
+  },
+  concluded: {
+    type: Date,
+  },
+  responsible: {
+    type: Schema.Types.ObjectId,
+    ref: "User",
+    required: [true, "Responsável Obrigatório"],
+  },
+  creation: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-export default model<TaskInterface>('Task',TaskSchema);
+export default model<TaskInterface>("Task", TaskSchema);

@@ -7,7 +7,7 @@
     creation : Date,
  }
 
- const UserShema = new Schema({
+ const UserSchema = new Schema({
     name:{
         type : String,
         unique: true,
@@ -26,7 +26,7 @@
     },
     creation:{
         type: Date,
-        default: Date.now, //coloquei isso pois no bache já vai pegar a data do cadastro
+        default: Date.now, //coloquei isso pois quando inserir já vai pegar a data do cadastro
 
     }
  });
