@@ -7,6 +7,7 @@ abstract class Controller {
   constructor(path: string){
     this.router= Router();
     this.path = path;
+    
     setTimeout(() => {
       this.initRoutes();
     }, 0);

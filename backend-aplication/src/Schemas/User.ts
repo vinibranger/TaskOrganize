@@ -13,7 +13,7 @@
         unique: true,
         required: [true,'Nome Obrigatório'],
     },
-    emai:{
+    email:{
         type: String,
         required: [true ,'E-mail Obrigatório'],
         unique: true,

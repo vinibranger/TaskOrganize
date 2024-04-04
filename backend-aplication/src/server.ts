@@ -6,3 +6,6 @@ const app = new App([
 ]);
 
 app.listen(3333);
+
+//yarn dev rodar aplicação
+//yarn install baixar dependencias 
