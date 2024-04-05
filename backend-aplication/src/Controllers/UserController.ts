@@ -2,6 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import Controller from "./Controller";
 import User from "../Schemas/User";
 import { isValidObjectId } from "mongoose";
+import ValidationService from "../Services/ValidationService";
 
 class UserController extends Controller {
   constructor() {
@@ -12,8 +13,8 @@ class UserController extends Controller {
     this.router.get(this.path, this.list);
     this.router.get(this.path + "/:id", this.findById);
     this.router.post(this.path, this.create);
-    this.router.put(this.path, this.edit);
-    this.router.delete(this.path, this.delete);
+    this.router.put(this.path + "/:id", this.edit);
+    this.router.delete(this.path + "/:id", this.delete);
   }
 
   private async list(
@@ -31,7 +32,7 @@ class UserController extends Controller {
     next: NextFunction
   ): Promise<Response> {
     const { id } = req.params; 
-    if (!isValidObjectId(id)) return res.status(400).send("ERROR");
+    if(ValidationService.validadeId(id)) return res.status(400).send("ERROR");
     const user = await User.findById(id);
     return res.send(user);
   }
@@ -51,7 +52,7 @@ class UserController extends Controller {
     next: NextFunction
   ): Promise<Response> {
     const { id } = req.params; 
-    if (!isValidObjectId(id)) return res.status(400).send("ERROR");
+    if(ValidationService.validadeId(id)) return res.status(400).send("ERROR");
     const user = await User.findByIdAndUpdate(id, req.body);
     return res.send(user)
   }
@@ -62,7 +63,7 @@ class UserController extends Controller {
     next: NextFunction
   ): Promise<Response> {
     const { id } = req.params; 
-    if (!isValidObjectId(id)) return res.status(400).send("ERROR");
+    if(ValidationService.validadeId(id)) return res.status(400).send("ERROR");
     
     const user = await User.findById(id);
     if (user){
