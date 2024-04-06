@@ -3,6 +3,8 @@ import Controller from "./Controller";
 import User from "../Schemas/User";
 import { isValidObjectId } from "mongoose";
 import ValidationService from "../Services/ValidationService";
+import HttpException from "../Errors/HttpException";
+import HttpStatusCode from "../Responses/HttpStatusCode";
 
 class UserController extends Controller {
   constructor() {
@@ -22,8 +24,14 @@ class UserController extends Controller {
     res: Response,
     next: NextFunction
   ): Promise<Response> {
-    const users = await User.find();
-    return res.send(users);
+    try {
+      const users = await User.find();
+      return res.send(users);
+    } catch (error) {
+      return res.send(
+        new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, "ERRO INTERNO")
+      );
+    }
   }
 
   private async findById(
@@ -31,8 +39,13 @@ class UserController extends Controller {
     res: Response,
     next: NextFunction
   ): Promise<Response> {
-    const { id } = req.params; 
-    if(ValidationService.validadeId(id)) return res.status(400).send("ERROR");
+    const { id } = req.params;
+    if (ValidationService.validadeId(id))
+      return res
+        .status(HttpStatusCode.BAD_REQUEST)
+        .send(
+          new HttpException(HttpStatusCode.BAD_REQUEST, "Requisição Invalida")
+        );
     const user = await User.findById(id);
     return res.send(user);
   }
@@ -42,19 +55,35 @@ class UserController extends Controller {
     res: Response,
     next: NextFunction
   ): Promise<Response> {
-    const user = await User.create(req.body)
-    return res.send(user);
+    try {
+      const user = await User.create(req.body);
+      return res.send(user);
+    } catch (error) {
+      return res.send(
+        new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, "ERRO INTERNO")
+      );
+    }
   }
-
   private async edit(
     req: Request,
     res: Response,
     next: NextFunction
   ): Promise<Response> {
-    const { id } = req.params; 
-    if(ValidationService.validadeId(id)) return res.status(400).send("ERROR");
-    const user = await User.findByIdAndUpdate(id, req.body);
-    return res.send(user)
+    const { id } = req.params;
+    if (ValidationService.validadeId(id))
+      return res
+        .status(HttpStatusCode.BAD_REQUEST)
+        .send(
+          new HttpException(HttpStatusCode.BAD_REQUEST, "Requisição Invalida")
+        );
+    try {
+      const user = await User.findByIdAndUpdate(id, req.body);
+      return res.send(user);
+    } catch (error) {
+      return res.send(
+        new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, "ERRO INTERNO")
+      );
+    }
   }
 
   private async delete(
@@ -62,21 +91,25 @@ class UserController extends Controller {
     res: Response,
     next: NextFunction
   ): Promise<Response> {
-    const { id } = req.params; 
-    if(ValidationService.validadeId(id)) return res.status(400).send("ERROR");
-    
-    const user = await User.findById(id);
-    if (user){
-      user.deleteOne();
-      return res.send(user)
-    }else {
-      return res.status (204).send();
+    const { id } = req.params;
+    if (ValidationService.validadeId(id))
+      return res
+        .status(HttpStatusCode.BAD_REQUEST)
+        .send(new HttpException(HttpStatusCode.BAD_REQUEST, "Req invalida"));
+    try {
+      const user = await User.findById(id);
+      if (user) {
+        user.deleteOne();
+        return res.send(user);
+      } else {
+        return res.status(HttpStatusCode.NOT_FOUND).send(new HttpException(HttpStatusCode.NOT_FOUND,'Erro ao excluir'));
+      }
+    } catch (error) {
+      return res.send(
+        new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, "ERRO INTERNO")
+      );
     }
-    return res.send(user)
   }
-
-
-
 }
 
 export default UserController;
