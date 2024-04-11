@@ -1,11 +1,13 @@
 import { NextFunction, Request, Response } from "express";
 import Controller from "./Controller";
 import User from "../Schemas/User";
-import { isValidObjectId } from "mongoose";
 import ValidationService from "../Services/ValidationService";
-import HttpException from "../Errors/HttpException";
 import HttpStatusCode from "../Responses/HttpStatusCode";
-
+import ServerErrorException from "../Errors/ServerErrorException";
+import IdInvalidException from "../Errors/IdInvalidException";
+import NoContentException from "../Errors/NoContentException";
+import ResponseCreate from "../Responses/ResponseCreate";
+import ResponseOK from "../Responses/ResponseOk";
 class UserController extends Controller {
   constructor() {
     super("/user");
@@ -26,11 +28,9 @@ class UserController extends Controller {
   ): Promise<Response> {
     try {
       const users = await User.find();
-      return res.send(users);
+      return res.send(ResponseOK(res,users));
     } catch (error) {
-      return res.send(
-        new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, "ERRO INTERNO")
-      );
+      return res.send(new ServerErrorException(error));
     }
   }
 
@@ -39,15 +39,18 @@ class UserController extends Controller {
     res: Response,
     next: NextFunction
   ): Promise<Response> {
+    try{
     const { id } = req.params;
     if (ValidationService.validadeId(id))
-      return res
-        .status(HttpStatusCode.BAD_REQUEST)
-        .send(
-          new HttpException(HttpStatusCode.BAD_REQUEST, "Requisição Invalida")
-        );
-    const user = await User.findById(id);
-    return res.send(user);
+      return res.status(HttpStatusCode.BAD_REQUEST).send(new IdInvalidException());
+
+      const user = await User.findById(id);
+      return res.send(ResponseOK(res,user));
+
+    }catch(error){
+      return res.send(new ServerErrorException(error));
+    }
+   
   }
 
   private async create(
@@ -57,11 +60,9 @@ class UserController extends Controller {
   ): Promise<Response> {
     try {
       const user = await User.create(req.body);
-      return res.send(user);
+      return res.send(ResponseCreate(res,user));
     } catch (error) {
-      return res.send(
-        new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, "ERRO INTERNO")
-      );
+      return res.send(new ServerErrorException(error));
     }
   }
   private async edit(
@@ -73,16 +74,12 @@ class UserController extends Controller {
     if (ValidationService.validadeId(id))
       return res
         .status(HttpStatusCode.BAD_REQUEST)
-        .send(
-          new HttpException(HttpStatusCode.BAD_REQUEST, "Requisição Invalida")
-        );
+        .send(new IdInvalidException());
     try {
       const user = await User.findByIdAndUpdate(id, req.body);
-      return res.send(user);
+     return res.send(ResponseOK(res,user));
     } catch (error) {
-      return res.send(
-        new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, "ERRO INTERNO")
-      );
+      return res.send(new ServerErrorException(error));
     }
   }
 
@@ -91,23 +88,23 @@ class UserController extends Controller {
     res: Response,
     next: NextFunction
   ): Promise<Response> {
+    try {
     const { id } = req.params;
     if (ValidationService.validadeId(id))
       return res
         .status(HttpStatusCode.BAD_REQUEST)
-        .send(new HttpException(HttpStatusCode.BAD_REQUEST, "Req invalida"));
-    try {
+        .send(new IdInvalidException());
+    
       const user = await User.findById(id);
       if (user) {
         user.deleteOne();
-        return res.send(user);
-      } else {
-        return res.status(HttpStatusCode.NOT_FOUND).send(new HttpException(HttpStatusCode.NOT_FOUND,'Erro ao excluir'));
-      }
+        return res.send(ResponseOK(res,user));
+      } 
+
+       return res.status(HttpStatusCode.NO_CONTENT).send(new NoContentException());
+      //return res.status(204).send()
     } catch (error) {
-      return res.send(
-        new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR, "ERRO INTERNO")
-      );
+      return res.send(new ServerErrorException(error));
     }
   }
 }
