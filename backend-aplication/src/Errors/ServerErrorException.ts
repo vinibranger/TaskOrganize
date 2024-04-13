@@ -3,7 +3,7 @@ import HttpException from "./HttpException";
 
 
 class ServerErrorException extends HttpException {
-  constructor(error: any) {
+  constructor(error) {
     super(getStatus(error), getMessage(error));
   }
 }
@@ -41,8 +41,7 @@ function getMessage(error:any): string {
 function isKeyUniqueError(error:any) {
   return isMongoError(error) && error.code === 11000;
 }
-//Quando você usa any como tipo para uma variável ou parâmetro, você está essencialmente dizendo ao TypeScript para não realizar checagens de tipo nessa variável ou parâmetro.
-//Isso permite que você trabalhe com valores de qualquer tipo sem receber erros de tipo do TypeScript
+
 function getMessageKeyUnique(error:any): string {
   const { keyPattern } = error;
   const listFormatedErros: string[] = [];
@@ -66,6 +65,10 @@ function getMessageGeneric(): string {
 }
 
 
-//AULA5 31:55
+
 
 export default ServerErrorException;
+
+//AULA5 31:55
+//Quando você usa any como tipo para uma variável ou parâmetro, você está essencialmente dizendo ao TypeScript para não realizar checagens de tipo nessa variável ou parâmetro.
+//Isso permite que você trabalhe com valores de qualquer tipo sem receber erros de tipo do TypeScript
