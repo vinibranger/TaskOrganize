@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import mongoose from "mongoose";
 import Controller from "./Controllers/Controller";
+import notFoundMiddleware from "./Middlewares/NotFoundMiddleware";
 
 class App {
   public app: express.Application;
@@ -14,6 +15,7 @@ class App {
     this.connectDataBase();
     this.initExpressJson();
     this.initControllers(controllers);
+    this.initNotFoundMiddleware();
   }
 
   private initMongoose(): void {
@@ -33,6 +35,12 @@ class App {
   private initExpressJson(): void {
     this.app.use(express.json()); //Aqui eu defino que quero utilizar o padrao json para leitura e resposta
   }
+  // todas as requisição vai passar por essa validação
+private initNotFoundMiddleware(){
+this.app.all("*", notFoundMiddleware);
+}
+
+
   private initControllers(controllers: Controller[]): void {
     controllers.forEach((controller) => {
       this.app.use("/", controller.router);

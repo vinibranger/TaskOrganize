@@ -69,6 +69,6 @@ function getMessageGeneric(): string {
 
 export default ServerErrorException;
 
-//AULA5 31:55
+
 //Quando você usa any como tipo para uma variável ou parâmetro, você está essencialmente dizendo ao TypeScript para não realizar checagens de tipo nessa variável ou parâmetro.
 //Isso permite que você trabalhe com valores de qualquer tipo sem receber erros de tipo do TypeScript
