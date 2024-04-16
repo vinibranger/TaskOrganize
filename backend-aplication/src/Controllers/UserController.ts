@@ -29,9 +29,39 @@ class UserController extends Controller {
   ): Promise<Response> {
     try {
       const users = await User.find();
-      return ResponseOK(res,users);
+
+      if(users.length){
+        return ResponseOK(res,users);
+      } else{
+        throw new NoContentException();
+        //next(new NoContentException());
+        //return ResponseOK(res,users);
+      }
+
+      /* VALIDAR 
+      private async list(
+  req: Request,
+  res: Response,
+  next: NextFunction
+): Promise<void> {
+  try {
+    const users = await User.find();
+
+    if (users.length) {
+      return ResponseOK(res, users);
+    } else {
+      throw new NoContentException();
+    }
+  } catch (error) {
+    next(new ServerErrorException(error));
+  }
+}
+
+       */
+       
     } catch (error) {
-      return res.send(new ServerErrorException(error));
+      next (new ServerErrorException(error));
+      //return res.send(new ServerErrorException(error));
      //return res.send(new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR,'ERROR NA API'));
     }
   }

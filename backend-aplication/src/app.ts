@@ -3,6 +3,7 @@ import cors from "cors";
 import mongoose from "mongoose";
 import Controller from "./Controllers/Controller";
 import notFoundMiddleware from "./Middlewares/NotFoundMiddleware";
+import runTimeErrorMiddleware from "./Middlewares/RunTimeErrorMiddleware";
 
 class App {
   public app: express.Application;
@@ -16,6 +17,7 @@ class App {
     this.initExpressJson();
     this.initControllers(controllers);
     this.initNotFoundMiddleware();
+    this.initrunTimeErrorMiddleware();
   }
 
   private initMongoose(): void {
@@ -40,6 +42,9 @@ private initNotFoundMiddleware(){
 this.app.all("*", notFoundMiddleware);
 }
 
+private initrunTimeErrorMiddleware(){
+  this.app.use(runTimeErrorMiddleware)
+}
 
   private initControllers(controllers: Controller[]): void {
     controllers.forEach((controller) => {
