@@ -21,7 +21,7 @@ class UserController extends Controller {
     this.router.put(this.path + "/:id", this.edit);
     this.router.delete(this.path + "/:id", this.delete);
   }
-
+  /* VALIDAR
   private async list(
     req: Request,
     res: Response,
@@ -37,32 +37,28 @@ class UserController extends Controller {
         //next(new NoContentException());
         //return ResponseOK(res,users);
       }
-
-      /* VALIDAR 
-      private async list(
-  req: Request,
-  res: Response,
-  next: NextFunction
-): Promise<void> {
-  try {
-    const users = await User.find();
-
-    if (users.length) {
-      return ResponseOK(res, users);
-    } else {
-      throw new NoContentException();
-    }
-  } catch (error) {
-    next(new ServerErrorException(error));
-  }
-}
-
-       */
-       
-    } catch (error) {
+          } catch (error) {
       next (new ServerErrorException(error));
       //return res.send(new ServerErrorException(error));
      //return res.send(new HttpException(HttpStatusCode.INTERNAL_SERVER_ERROR,'ERROR NA API'));
+    }
+  }
+ */
+
+  private async list(
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ): Promise<void> {
+    try {
+      const users = await User.find();
+      if (users.length) {
+        ResponseOK(res, users);
+      } else {
+        throw new NoContentException();
+      }
+    } catch (error) {
+      next(new ServerErrorException(error));
     }
   }
 
@@ -71,13 +67,16 @@ class UserController extends Controller {
     res: Response,
     next: NextFunction
   ): Promise<Response> {
-    try{
-    const { id } = req.params;
-    if (ValidationService.validId(id))
-      return res.status(HttpStatusCode.BAD_REQUEST).send(new IdInvalidException());
-      const user = await User.findById(id);
-      return ResponseOK(res,user);
-    }catch(error){
+    try {
+      const { id } = req.params;
+      if (ValidationService.validId(id, next))
+        return res.status(HttpStatusCode.BAD_REQUEST).send(new IdInvalidException());
+      
+        const user = await User.findById(id);
+        if(user) return ResponseOK(res, user);
+
+        next
+    } catch (error) {
       return res.send(new ServerErrorException(error));
     }
   }
@@ -88,7 +87,7 @@ class UserController extends Controller {
   ): Promise<Response> {
     try {
       const user = await User.create(req.body);
-      return ResponseCreate(res,user);
+      return ResponseCreate(res, user);
     } catch (error) {
       return res.send(new ServerErrorException(error));
     }
@@ -99,13 +98,11 @@ class UserController extends Controller {
     next: NextFunction
   ): Promise<Response> {
     const { id } = req.params;
-    if (ValidationService.validId(id))
-      return res
-        .status(HttpStatusCode.BAD_REQUEST)
-        .send(new IdInvalidException());
+    if (ValidationService.validId(id, next))
+      return res.status(HttpStatusCode.BAD_REQUEST).send(new IdInvalidException());
     try {
       const user = await User.findByIdAndUpdate(id, req.body);
-     return ResponseOK(res,user);
+      return ResponseOK(res, user);
     } catch (error) {
       return res.send(new ServerErrorException(error));
     }
@@ -117,17 +114,19 @@ class UserController extends Controller {
     next: NextFunction
   ): Promise<Response> {
     try {
-    const { id } = req.params;
-    if (ValidationService.validId(id))
-      return res
-        .status(HttpStatusCode.BAD_REQUEST)
-        .send(new IdInvalidException());
+      const { id } = req.params;
+      if (ValidationService.validId(id, next))
+        return res
+          .status(HttpStatusCode.BAD_REQUEST)
+          .send(new IdInvalidException());
       const user = await User.findById(id);
       if (user) {
         user.deleteOne();
-        return ResponseOK(res,user);
-      } 
-       return res.status(HttpStatusCode.NO_CONTENT).send(new NoContentException());
+        return ResponseOK(res, user);
+      }
+      return res
+        .status(HttpStatusCode.NO_CONTENT)
+        .send(new NoContentException());
       //return res.status(204).send()
     } catch (error) {
       return res.send(new ServerErrorException(error));
